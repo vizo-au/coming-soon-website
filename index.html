@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VIZO: see your home before it’s built</title>
+<meta name="description" content="VIZO turns a builder’s drawings into a 3D home at exact scale, checked against your drawings, ready to walk through and furnish. Coming soon.">
+<meta property="og:title" content="VIZO: see your home before it’s built">
+<meta property="og:description" content="From a builder’s drawings to a 3D home at exact scale, checked against your drawings. Coming soon.">
+<meta property="og:image" content="https://vizo.com.au/assets/street.webp">
+<meta name="theme-color" content="#171614">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23FFD36B'/%3E%3Cstop offset='1' stop-color='%23F4A950'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 9l8 15 8-15' fill='none' stroke='%23171614' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#161513;--muted:#66625A;--line:#E8E5DE;--page:#F6F5F2;--card:#FFFFFF;--grad:linear-gradient(100deg,#FFD36B,#F4A950);--sky:#40698F;--night:#171614;--glow:#FFD36B;--gut:clamp(12px,1.6vw,24px)}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{background:var(--page);color:var(--ink);font:400 17px/1.55 "Instrument Sans","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+img{display:block;max-width:100%;-webkit-user-drag:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+:focus-visible{outline:3px solid #E89B3C;outline-offset:3px}
+.wrap{max-width:1320px;margin:0 auto;padding:0 clamp(16px,3vw,40px)}
+
+.notice{display:block;text-align:center;padding:9px 16px;font-size:15px;font-weight:500;text-decoration:none;background:linear-gradient(90deg,#FFF4D9,#FDEBD0,#FBE2CC)}
+.notice u{text-underline-offset:3px}
+
+.nav{position:sticky;top:12px;z-index:20;margin:28px auto 0;width:min(1000px,calc(100% - 2*var(--gut)));display:flex;align-items:center;gap:6px;padding:8px 8px 8px 22px;border-radius:999px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(22,21,19,.08);box-shadow:0 10px 30px -14px rgba(22,21,19,.3)}
+.logo{font-size:22px;font-weight:700;letter-spacing:.01em;text-decoration:none;margin-right:auto}
+.nav a.link{padding:8px 14px;border-radius:999px;font-size:15px;font-weight:500;text-decoration:none;color:#3B3833}
+.nav a.link:hover{background:#EFEDE7}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border-radius:999px;font-size:15.5px;font-weight:600;text-decoration:none;white-space:nowrap}
+.btn.grad{background:var(--grad);color:#1B1812}
+.btn.white{background:#fff;color:var(--ink)}
+.btn.ghost{color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.75)}
+.btn:hover{filter:brightness(1.07)}
+
+.hero{position:relative;margin:-78px var(--gut) 0;height:max(720px,min(92vh,920px));border-radius:32px;overflow:hidden;background:var(--sky);color:#fff}
+.layer{position:absolute;inset:0;overflow:hidden}
+.layer img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:max(100%,1020px);max-width:none;height:auto;-webkit-mask-image:linear-gradient(#0000,#000 14%);mask-image:linear-gradient(#0000,#000 14%);pointer-events:none}
+.compare{position:relative;margin-top:32px;aspect-ratio:1920/1080;min-height:300px;width:100%;border-radius:24px;overflow:hidden;background:#fff;border:1px solid var(--line);color:#fff;touch-action:pan-y;cursor:ew-resize;user-select:none;-webkit-user-select:none}
+.compare .layer img{inset:0;left:0;bottom:auto;transform:none;width:100%;height:100%;object-fit:cover;-webkit-mask-image:none;mask-image:none}
+.layer.paper{background:#fff}
+.layer.top{clip-path:inset(0 calc(100% - var(--x,50%)) 0 0)}
+.bar{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;margin-left:-1px;background:#161513;z-index:2;pointer-events:none}
+.knob{position:absolute;top:50%;margin-top:-26px;left:50%;width:52px;height:52px;margin-left:-26px;border-radius:50%;background:#fff;color:var(--ink);display:grid;place-items:center;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+.range{position:absolute;width:1px;height:1px;opacity:0;bottom:0;left:0}
+.range:focus-visible~.bar .knob{outline:3px solid var(--glow);outline-offset:3px}
+.copy{position:absolute;inset:100px 16px auto;text-align:center;z-index:3;pointer-events:none}
+.copy>*{pointer-events:auto;width:fit-content;margin-left:auto;margin-right:auto}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pill{display:block;padding:6px 14px;border-radius:999px;font-size:14.5px;font-weight:600;background:rgba(255,255,255,.16);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+h1{margin-top:16px;font-size:clamp(44px,6.4vw,92px);line-height:.98;font-weight:600;letter-spacing:-.035em;text-wrap:balance;max-width:15ch;text-shadow:0 2px 30px rgba(0,0,0,.4)}
+.lede{margin-top:16px;font-size:clamp(17px,1.4vw,20px);line-height:1.45;max-width:46ch;text-shadow:0 1px 3px rgba(0,0,0,.55),0 1px 18px rgba(0,0,0,.5)}
+.acts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
+.tag{position:absolute;bottom:18px;z-index:3;padding:6px 13px;border-radius:999px;font-size:14px;font-weight:600;background:rgba(15,14,12,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);pointer-events:none}
+.tag.l{left:18px}.tag.r{right:18px}
+
+section{padding:clamp(64px,8vw,112px) 0 0}
+.proof{padding-top:16px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.fact{border-radius:24px;padding:clamp(26px,3vw,44px);color:#fff}
+.fact h2{max-width:none}
+.fact p{margin-top:12px;max-width:44ch;font-size:clamp(17px,1.3vw,19px);color:rgba(255,255,255,.9)}
+.fact.scale{background-color:var(--night);background-image:linear-gradient(rgba(245,240,230,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(245,240,230,.06) 1px,transparent 1px);background-size:32px 32px}
+.fact.noai{background:var(--grad);color:#1B1812}
+.fact.noai p{color:rgba(27,24,18,.82)}
+.dimline{display:block;width:100%;height:24px;margin-top:24px;color:#C9C2B4}
+h2{font-size:clamp(34px,4.2vw,58px);line-height:1.03;font-weight:600;letter-spacing:-.03em;max-width:17ch;text-wrap:balance}
+.sub{margin-top:14px;color:var(--muted);max-width:56ch;font-size:clamp(17px,1.3vw,19px)}
+h3{font-size:22px;line-height:1.2;font-weight:600;letter-spacing:-.015em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;overflow:hidden}
+.card p{color:var(--muted);margin-top:8px}
+.pad{padding:24px}
+.shot{position:relative}
+.still{position:absolute;top:12px;left:12px;z-index:2;padding:4px 11px;border-radius:999px;font-size:13.5px;font-weight:600;color:#fff;background:rgba(15,14,12,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.still.end{top:auto;left:auto;right:16px;bottom:16px}
+
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:40px}
+.drop{aspect-ratio:16/10;margin:14px 14px 0;border:1.5px dashed #CFCABF;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#6A655B;background:#FAF8F3;font-weight:500}
+.steps img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover}
+.num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--grad);color:#1B1812;font-size:15px;font-weight:600;margin-bottom:12px}
+
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;margin-top:40px}
+.span7{grid-column:span 7}.span5{grid-column:span 5}.span4{grid-column:span 4}
+.photo{position:relative;min-height:440px;color:#fff;border:0}
+.photo>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo .over{position:absolute;left:0;right:0;bottom:0;padding:90px 26px 24px;background:linear-gradient(transparent,rgba(15,14,12,.82))}
+.photo .over p{color:rgba(255,255,255,.88)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{padding:6px 13px;border-radius:999px;font-size:14.5px;font-weight:500;background:#F3F0E8;color:#3B3730}
+.soon{display:inline-block;margin-bottom:12px;padding:3px 11px;border-radius:999px;font-size:13.5px;font-weight:600;color:#6A4A0B;background:#FCEFD0}
+
+.who{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:40px}
+
+.access{position:relative;margin:clamp(64px,8vw,112px) var(--gut) 0;border-radius:32px;overflow:hidden;color:#fff;background:var(--night)}
+.access>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 40%}
+.access .in{position:relative;padding:clamp(56px,9vw,128px) clamp(24px,5vw,72px);background:linear-gradient(90deg,rgba(15,14,12,.88),rgba(15,14,12,.45) 60%,rgba(15,14,12,.1))}
+.access h2{max-width:13ch}
+.access p{margin-top:14px;max-width:40ch;font-size:clamp(17px,1.3vw,19px);color:rgba(255,255,255,.9)}
+.access .btn{margin-top:26px}
+
+footer{padding:28px 0 36px;color:var(--muted);font-size:15px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:6px 24px;justify-content:space-between}
+
+@media (max-width:980px){
+.steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+.span7,.span5{grid-column:span 12}.span4{grid-column:span 6}
+.span4:last-child{grid-column:span 12}
+}
+@media (max-width:640px){
+.nav a.link{display:none}
+.compare .tag,.hero .tag{font-size:12px;padding:4px 9px;bottom:6px}.compare .tag.l{left:10px}.compare .tag.r,.hero .tag.r{right:10px}
+.nav{padding-left:18px;width:calc(100% - 2*var(--gut) - 20px)}
+.hero{height:auto;border-radius:24px}
+.hero .layer img{width:115%}
+.logo{padding:5px 0}
+.copy{position:relative;inset:auto;padding:92px 12px 172px}
+.steps,.who,.facts{grid-template-columns:minmax(0,1fr)}
+.span4{grid-column:span 12}
+.photo{min-height:380px}
+.access{border-radius:24px}
+.access .in{background:linear-gradient(rgba(15,14,12,.88),rgba(15,14,12,.62))}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="notice" href="#access">VIZO is coming soon. <u>Get early access</u></a>
+<nav class="nav" aria-label="Main">
+<a class="logo" href="#top">VIZO</a>
+<a class="link" href="#how">How it works</a>
+<a class="link" href="#features">Features</a>
+<a class="link" href="#who">Who it’s for</a>
+<a class="btn grad" href="#access">Get early access</a>
+</nav>
+
+<main id="top">
+<div class="hero">
+<div class="layer sky"><img src="assets/home-front.webp" width="1920" height="808" alt="A 3D image of the front of a modern single-storey home"></div>
+<div class="copy">
+<div class="pills"><span class="pill">Coming soon</span><span class="pill">Exact scale</span><span class="pill">Checked against your drawings</span></div>
+<h1>See your home before it’s built</h1>
+<p class="lede">VIZO turns a builder’s drawings into a 3D home at exact scale, ready to walk through and furnish.</p>
+<div class="acts"><a class="btn white" href="#access">Get early access</a><a class="btn ghost" href="#how">See how it works</a></div>
+</div>
+<span class="tag r">3D image from drawings</span>
+</div>
+
+<section class="proof"><div class="wrap"><div class="facts">
+<article class="fact scale"><h2>Exact scale</h2><p>Every wall, door and window is built to the dimensions on your drawings.</p><svg class="dimline" viewBox="0 0 600 24" preserveAspectRatio="none" aria-hidden="true"><path d="M1 3v18M599 3v18M1 12h598" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg></article>
+<article class="fact noai"><h2>Checked against your drawings</h2><p>What you walk through is checked against your plans.</p></article>
+</div></div></section>
+
+<section class="twod"><div class="wrap">
+<h2>From 2D to 3D</h2>
+<p class="sub">Drag across the image to compare.</p>
+<div class="compare" id="compare">
+<div class="layer paper"><img src="assets/home-2d.webp" width="1920" height="1080" alt="The front elevation drawing of a single-storey home"></div>
+<div class="layer top"><img src="assets/home-3d.webp" width="1920" height="1080" alt="A 3D image of the same home"></div>
+<span class="tag l">3D image from drawings</span><span class="tag r">Actual 2D drawing</span>
+<input class="range" id="range" type="range" min="0" max="100" value="50" aria-label="Move right to show more of the 3D image">
+<div class="bar"><div class="knob" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg></div></div>
+</div>
+</div></section>
+
+<section id="how"><div class="wrap">
+<h2>From drawings to a home you can walk through</h2>
+<p class="sub">Three simple steps, from your plans to your front door.</p>
+<div class="steps">
+<article class="card"><div class="drop" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5M7.5 9.5 12 5l4.5 4.5M5 19h14"/></svg><span>Drop your drawings here</span></div><div class="pad"><span class="num">1</span><h3>Upload your drawings</h3><p>Send us the drawings you already have.</p></div></article>
+<article class="card"><div class="shot"><img src="assets/corner.webp" alt="3D image of the home’s front from the street corner" loading="lazy"><span class="still">3D image from drawings</span></div><div class="pad"><span class="num">2</span><h3>VIZO builds your home</h3><p>Your drawings become a 3D home at exact scale.</p></div></article>
+<article class="card"><div class="shot"><img src="assets/kitchen.webp" alt="3D image of a white kitchen with an island bench" loading="lazy"><span class="still">3D image from drawings</span></div><div class="pad"><span class="num">3</span><h3>Share a link</h3><p>Your buyers walk through their home in a browser, with nothing to install.</p></div></article>
+</div>
+</div></section>
+
+<section id="features"><div class="wrap">
+<h2>More than a picture of a house</h2>
+<div class="bento">
+<article class="card photo span7"><img src="assets/master.webp" alt="3D image of the master bedroom, with a large window onto the front garden" loading="lazy"><span class="still">3D image from drawings</span><div class="over"><h3>Walk every room</h3><p>Move through the home freely, at exact scale, from the street to the back garden.</p></div></article>
+<article class="card photo span5"><img src="assets/street.webp" alt="3D image of the entry, with its timber door and dark brick piers" loading="lazy"><span class="still">3D image from drawings</span><div class="over"><h3>The finishes you chose</h3><p>Bricks, render, floors and benches follow the builder’s finishes schedule.</p></div></article>
+<article class="card span4 pad"><h3>True to your drawings</h3><p>What you walk through matches what’s on your plans.</p><div class="chips"><span class="chip">Exact scale</span><span class="chip">Your dimensions</span></div></article>
+<article class="card span4 pad"><span class="soon">Planned</span><h3>Furnish it your way</h3><p>Place furniture by hand or ask AI to fill a room. The house itself never changes.</p><div class="chips"><span class="chip">By hand</span><span class="chip">With AI</span><span class="chip">At true size</span></div></article>
+<article class="card span4 pad"><span class="soon">Planned</span><h3>Try changes with your builder</h3><p>Pick the builder’s options or test a bigger room in 2D and 3D, then see the result straight away.</p><div class="chips"><span class="chip">Facades</span><span class="chip">Floor plan options</span><span class="chip">Finishes</span></div></article>
+</div>
+</div></section>
+
+<section id="who"><div class="wrap">
+<h2>Made for builders and the people they build for</h2>
+<div class="who">
+<article class="card pad"><h3>Builders</h3><p>Show buyers every design, facade and option.</p></article>
+<article class="card pad"><h3>Homeowners</h3><p>Walk through your future home and try furniture in it before the slab is poured.</p></article>
+</div>
+</div></section>
+</main>
+
+<section class="access" id="access" style="padding:0">
+<img src="assets/rear.webp" alt="" loading="lazy">
+<div class="in">
+<h2>Be first to see VIZO</h2>
+<p>Tell us about your next project and we’ll be in touch when early access opens.</p>
+<a class="btn white" href="mailto:hello@vizo.com.au?subject=VIZO%20early%20access">Email us for early access</a>
+</div>
+<span class="still end">3D image from drawings</span>
+</section>
+
+<footer><div class="wrap"><span>© 2026 VIZO. All rights reserved.</span><span>The home shown is a VIZO demo design. All house images are 3D images from drawings.</span></div></footer>
+
+<script>
+["contextmenu","dragstart"].forEach(function(t){document.addEventListener(t,function(e){var n=e.target;if(n.closest&&!n.closest("a")&&n.closest("img,.hero,.compare,.photo,.shot,.access"))e.preventDefault()})});
+</script>
+<script>
+(function(){
+var box=document.getElementById('compare'),range=document.getElementById('range'),moved=false,drag=false;
+function set(p){p=Math.max(0,Math.min(100,p));box.style.setProperty('--x',p+'%');range.value=p}
+function fromEvent(e){var r=box.getBoundingClientRect();set((e.clientX-r.left)/r.width*100)}
+box.addEventListener('pointerdown',function(e){drag=true;moved=true;box.setPointerCapture(e.pointerId);fromEvent(e)});
+box.addEventListener('pointermove',function(e){if(drag)fromEvent(e)});
+box.addEventListener('pointerup',function(){drag=false});
+box.addEventListener('pointercancel',function(){drag=false});
+range.addEventListener('input',function(){moved=true;set(+range.value)});
+set(50);
+if(matchMedia('(prefers-reduced-motion: reduce)').matches||!('IntersectionObserver' in window))return;
+set(12);
+var io=new IntersectionObserver(function(es){if(!es[0].isIntersecting)return;io.disconnect();var t0=null;
+function sweep(now){if(moved)return;if(t0===null)t0=now;var t=Math.min(1,(now-t0)/1500),e=1-Math.pow(1-t,3);set(12+38*e);if(t<1)requestAnimationFrame(sweep)}
+requestAnimationFrame(sweep)},{threshold:.5});
+io.observe(box);
+})();
+</script>
+</body>
+</html>
